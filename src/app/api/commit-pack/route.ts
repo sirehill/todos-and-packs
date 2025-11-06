@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/server-session";
 import type { Session } from "next-auth";
-import { authOptions } from "@/lib/auth"; // <- adjust this path if your authOptions live elsewhere
+
 
 // Example helper types (adjust to your app's real types if you have them)
 type CommitPackRequestBody = {
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     // Get the session, typed as NextAuth's Session
     // getServerSession can return Session | null
-    const session = (await getServerSession(authOptions as any)) as
+    const session = (await getServerSession()) as
       | Session
       | null;
 

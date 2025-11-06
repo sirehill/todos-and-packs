@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/server-session";
-import { authOptions } from "@/lib/auth";
 import RemoveDuplicatesButton from "./RemoveDuplicatesButton";
 
 function getDevEmail() { return process.env.DEV_SEED_EMAIL || "dev@local.test"; }
@@ -9,7 +8,7 @@ export default async function HomeDuplicatesSection() {
   // Identify user (session or dev fallback)
   let email: string | null = null;
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession();
     email = session?.user?.email || null;
   } catch {}
   if (!email) email = getDevEmail();

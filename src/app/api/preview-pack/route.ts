@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/server-session";
 import type { Session } from "next-auth";
-import { authOptions } from "@/lib/auth"; // adjust path if needed
+
 
 type PreviewPackRequestBody = {
   packTypeId?: string;     // <-- opener sends this
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     } catch {}
 
     // Optional: read session; not strictly required for preview
-    const session = (await getServerSession(authOptions as any)) as Session | null;
+    const session = (await getServerSession()) as Session | null;
     const email = (session?.user?.email as string | undefined) ?? null;
 
     const packTypeId = body.packTypeId ?? "default";

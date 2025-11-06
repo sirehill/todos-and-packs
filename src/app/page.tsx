@@ -5,7 +5,7 @@ import HomeDuplicatesSection from "@/components/HomeDuplicatesSection";
 import Link from "next/link";
 import { getServerSession } from "@/lib/server-session";
 import type { Session } from "next-auth";
-import { authOptions } from "@/lib/auth"; // adjust if your authOptions live elsewhere
+
 
 function getDevEmail() {
   return process.env.DEFAULT_USER_EMAIL || "demo@example.com";
@@ -13,7 +13,7 @@ function getDevEmail() {
 
 export default async function Page() {
   // Get a session safely (typed as Session | null)
-  const session = (await getServerSession(authOptions as any)) as Session | null;
+  const session = (await getServerSession()) as Session | null;
   const email: string | null = (session?.user?.email as string | undefined) ?? null;
   const userEmail = email ?? getDevEmail();
 
