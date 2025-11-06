@@ -4,8 +4,8 @@ import { getServerSession } from "next-auth/next";
 import type { Session } from "next-auth";
 import { authOptions } from "@/lib/auth"; // adjust path if needed
 
-// Import existing page components (these should already exist in your project)
-import HomePackOpener from "@/components/HomePackOpener";
+// Use the existing PackGate wrapper which loads the actual pack opener UI
+import PackGate from "@/components/PackGate";
 import HomeDuplicatesSection from "@/components/HomeDuplicatesSection";
 import CollectionGrid from "@/components/CollectionGrid";
 
@@ -27,19 +27,18 @@ export default async function Page() {
   // If no logged-in user, fallback to a dev/demo email
   const userEmail = email ?? getDevEmail();
 
-  // You can pass userEmail to child components if they expect it,
-  // or use it for server-side logic here.
   return (
     <main className="max-w-5xl mx-auto p-4">
       <header className="mb-6">
         <h1 className="text-3xl font-bold">Packs & Lists</h1>
-        <p className="text-sm text-muted-foreground">Welcome{email ? `, ${session?.user?.name ?? ""}` : ""}.</p>
+        <p className="text-sm text-muted-foreground">
+          Welcome{email ? `, ${session?.user?.name ?? ""}` : ""}.
+        </p>
       </header>
 
       <section className="mb-8">
-        {/* Pack opener UI */}
-        {/* If HomePackOpener expects props you can pass userEmail as needed */}
-        <HomePackOpener userEmail={userEmail} />
+        {/* Pack opener UI wrapped in PackGate */}
+        <PackGate />
       </section>
 
       <section className="mb-8">
