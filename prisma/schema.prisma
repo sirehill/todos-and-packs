@@ -10,10 +10,10 @@ datasource db {
 
 // SQLite-safe: store JSON as String; store rarity as String.
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String        @id @default(cuid())
+  email     String        @unique
   name      String?
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
   items     UserItem[]
   opens     PackOpen[]
   pity      UserPity[]
@@ -21,8 +21,8 @@ model User {
 }
 
 model List {
-  id          String  @id @default(cuid())
-  slug        String  @unique
+  id          String     @id @default(cuid())
+  slug        String     @unique
   name        String
   description String?
   items       Item[]
@@ -30,32 +30,33 @@ model List {
 }
 
 model Item {
-  id        String  @id @default(cuid())
+  id        String     @id @default(cuid())
   listId    String
-  list      List    @relation(fields: [listId], references: [id])
+  list      List       @relation(fields: [listId], references: [id])
   name      String
-  rarity    String  // 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY'
+  rarity    String // 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY'
   weight    Int?
   userItems UserItem[]
 }
 
 model UserItem {
-  id      String @id @default(cuid())
-  userId  String
-  itemId  String
-  user    User   @relation(fields: [userId], references: [id])
-  item    Item   @relation(fields: [itemId], references: [id])
-  qty     Int    @default(1)
+  id     String @id @default(cuid())
+  userId String
+  itemId String
+  user   User   @relation(fields: [userId], references: [id])
+  item   Item   @relation(fields: [itemId], references: [id])
+  qty    Int    @default(1)
+
   @@unique([userId, itemId])
 }
 
 model PackType {
-  id           String    @id @default(cuid())
+  id           String        @id @default(cuid())
   listId       String
-  list         List      @relation(fields: [listId], references: [id])
+  list         List          @relation(fields: [listId], references: [id])
   name         String
-  cardsPerPack Int       @default(4)
-  pitySteps    String?   // JSON string {RARE:n,EPIC:n,LEGENDARY:n}
+  cardsPerPack Int           @default(4)
+  pitySteps    String? // JSON string {RARE:n,EPIC:n,LEGENDARY:n}
   drops        DropTable[]
   opens        PackOpen[]
   pities       UserPity[]
@@ -63,11 +64,11 @@ model PackType {
 }
 
 model DropTable {
-  id          String   @id @default(cuid())
-  packTypeId  String
-  packType    PackType @relation(fields: [packTypeId], references: [id])
-  rarity      String
-  baseProb    Decimal
+  id         String   @id @default(cuid())
+  packTypeId String
+  packType   PackType @relation(fields: [packTypeId], references: [id])
+  rarity     String
+  baseProb   Decimal
 }
 
 model PackOpen {
@@ -75,18 +76,19 @@ model PackOpen {
   userId     String
   packTypeId String
   openedAt   DateTime @default(now())
-  result     String   // JSON-string of cards
+  result     String // JSON-string of cards
   user       User     @relation(fields: [userId], references: [id])
   packType   PackType @relation(fields: [packTypeId], references: [id])
 }
 
 model UserPity {
-  id         String  @id @default(cuid())
+  id         String   @id @default(cuid())
   userId     String
   packTypeId String
-  counter    Int     @default(0)
+  counter    Int      @default(0)
   user       User     @relation(fields: [userId], references: [id])
   packType   PackType @relation(fields: [packTypeId], references: [id])
+
   @@unique([userId, packTypeId])
 }
 
@@ -94,10 +96,11 @@ model PackPreview {
   id         String   @id @default(cuid())
   userId     String
   packTypeId String
-  cards      String   // JSON-string of cards
+  cards      String // JSON-string of cards
   createdAt  DateTime @default(now())
   // auto-expire logic can be app-level; keep simple for MVP
   user       User     @relation(fields: [userId], references: [id])
   packType   PackType @relation(fields: [packTypeId], references: [id])
+
   @@index([userId, packTypeId])
 }
