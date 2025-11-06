@@ -1,6 +1,6 @@
 // src/app/api/preview-pack/route.ts
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
+import { getServerSession } from "@/lib/server-session";
 import type { Session } from "next-auth";
 import { authOptions } from "@/lib/auth"; // adjust path if needed
 
