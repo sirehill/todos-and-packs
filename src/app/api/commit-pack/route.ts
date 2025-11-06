@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 import { authOptions } from "@/lib/auth";
 
 type Card = { itemId: string; rarity: string; name?: string };
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     // Try NextAuth session first
     try {
-      const session = await getServerSession(authOptions as any);
+      const session = await auth();
       userEmail = (session?.user?.email as string | undefined) ?? null;
     } catch {}
 

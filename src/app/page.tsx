@@ -2,7 +2,7 @@ import RefreshOnInventory from './refresh-on-inventory';
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import HomePackOpener from "./home-pack-opener";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 import { authOptions } from "@/lib/auth";
 import HomeTodoSection from '@/components/HomeTodoSection';
 import HomeDuplicatesSection from "@/components/HomeDuplicatesSection";
@@ -15,7 +15,7 @@ export default async function Page() {
   // Identify user (session email or dev fallback)
   let email: string | null = null;
   try {
-    const session = await getServerSession(authOptions as any);
+    const session = await auth();
     email = (session?.user?.email as string | undefined) ?? null;
   } catch {}
   if (!email) email = getDevEmail();

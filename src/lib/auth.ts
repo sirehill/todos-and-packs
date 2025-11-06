@@ -30,6 +30,6 @@ export const authOptions: NextAuthOptions = {
   }
 };
 
-export function auth() { return getServerSession(authOptions); }
+export function auth() { return auth(); }
 const handler = NextAuth(authOptions);
 export default handler;

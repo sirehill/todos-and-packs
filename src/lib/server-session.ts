@@ -3,9 +3,9 @@ import { auth } from "@/lib/auth";
 import type { Session } from "next-auth";
 
 /**
- * Drop-in replacement for v4's getServerSession(authOptions).
+ * Drop-in replacement for v4's auth().
  * Call it exactly the same way you did before, but it ignores the argument.
  */
-export async function getServerSession(_unused?: unknown): Promise<Session | null> {
+export async function auth(): Promise<Session | null> {
   return auth();
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 import { authOptions } from "@/lib/auth";
 
 type Rarity = "COMMON"|"UNCOMMON"|"RARE"|"EPIC"|"LEGENDARY";
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     // Resolve user via session or fallback
     let email: string | null = null;
     try {
-      const session = await getServerSession(authOptions as any);
+      const session = await auth();
       email = (session?.user?.email as string | undefined) ?? null;
     } catch {}
     if (!email) email = process.env.DEFAULT_USER_EMAIL || "demo@example.com";
