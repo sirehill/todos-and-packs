@@ -1,37 +1,35 @@
-// src/lib/auth.ts
-import NextAuth, { type NextAuthConfig } from "next-auth";
+import NextAuth, { NextAuthOptions, getServerSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/lib/prisma";
+import prisma from "./prisma";
 
-const config: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma),
+export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   providers: [
     Credentials({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        // Make TypeScript happy & avoid '{}' by guarding the type
-        const email =
-          typeof credentials?.email === "string" ? credentials.email : null;
-
+      name: "Dev Email",
+      credentials: { email: { label: "Email", type: "email" } },
+      async authorize(creds) {
+        const email = (creds?.email || "").toString().toLowerCase().trim();
         if (!email) return null;
-
-        // (Optional) add password verification later if you need it
-        const user = await prisma.user.findUnique({
-          where: { email }
-        });
-
-        return user ?? null;
+        let user = await prisma.user.findUnique({ where: { email } });
+        if (!user) user = await prisma.user.create({ data: { email } });
+        return { id: user.id, email: user.email, name: user.name ?? user.email };
       }
     })
-  ]
-  // callbacks/pages can be added here later
+  ],
+  pages: { signIn: "/login" },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) token.sub = (user as any).id;
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user && token?.sub) (session.user as any).id = token.sub;
+      return session;
+    }
+  }
 };
 
-export const { handlers, auth, signIn, signOut } = NextAuth(config);
-export type { NextAuthConfig };
+export function auth() { return getServerSession(authOptions); }
+const handler = NextAuth(authOptions);
+export default handler;

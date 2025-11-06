@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "@/lib/server-session";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
 function getDevEmail() { return process.env.DEV_SEED_EMAIL || "dev@local.test"; }
 
 function num(v: any, d: number) {
@@ -29,7 +31,7 @@ export async function POST() {
   try {
     let email: string | null = null;
     try {
-      const session = await getServerSession();
+      const session = await getServerSession(authOptions);
       email = session?.user?.email || null;
     } catch {}
     if (!email) email = getDevEmail();

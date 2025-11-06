@@ -1,7 +1,2 @@
-// src/middleware.ts
-export { auth as middleware } from "@/lib/auth";
-
-export const config = {
-  // adjust matchers to your protected sections
-  matcher: ["/packs/:path*", "/collections/:path*", "/lists/:path*"],
-};
+export { default } from "next-auth/middleware";
+export const config = { matcher: ["/lists/:path*", "/api/open-pack", "/api/preview-pack", "/api/commit-pack"] };
