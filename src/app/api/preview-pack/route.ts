@@ -2,10 +2,10 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import type { Session } from "next-auth";
-import { authOptions } from "@/lib/auth"; // adjust path if your authOptions live elsewhere
+import { authOptions } from "@/lib/auth"; // adjust path if needed
 
 type PreviewPackRequestBody = {
-  packId?: string;
+  packTypeId?: string;     // <-- opener sends this
   previewCount?: number;
 };
 
@@ -14,49 +14,37 @@ const json = (data: unknown, status = 200) =>
 
 export async function POST(req: Request) {
   try {
-    // parse body defensively
     let body: PreviewPackRequestBody = {};
     try {
       body = (await req.json()) as PreviewPackRequestBody;
-    } catch {
-      // ignore parse errors; keep body default
-    }
+    } catch {}
 
-    // get session typed as NextAuth Session or null
-    const session = (await getServerSession(authOptions as any)) as
-      | Session
-      | null;
+    // Optional: read session; not strictly required for preview
+    const session = (await getServerSession(authOptions as any)) as Session | null;
+    const email = (session?.user?.email as string | undefined) ?? null;
 
-    // safe extraction of email
-    let email: string | null =
-      (session?.user?.email as string | undefined) ?? null;
-
-    // fallback for local/dev usage or anonymous preview
-    if (!email) email = process.env.DEFAULT_USER_EMAIL || "demo@example.com";
-
-    const packId = body.packId ?? "unknown-pack";
+    const packTypeId = body.packTypeId ?? "default";
     const previewCount = body.previewCount ?? 3;
 
-    // --- minimal preview logic (replace with your real behaviour) ---
-    // Here we simulate generating a preview (list of card keys, rarities, etc.)
-    // Keep consistent with your frontend expectations.
+    // Build a lightweight, deterministic preview (replace with your real logic later)
     const samplePreview = Array.from({ length: previewCount }).map((_, i) => ({
-      id: `${packId}-preview-${i + 1}`,
+      itemId: `${packTypeId}-item-${i + 1}`,
       name: `Sample Card ${i + 1}`,
-      rarity: ["common", "rare", "epic"][i % 3],
+      rarity: (["COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY"] as const)[i % 5],
     }));
 
+    // IMPORTANT: return { ok: true, items: [...] } to match HomePackOpener expectations
     return json(
       {
-        success: true,
-        previewFor: packId,
-        user: email,
-        items: samplePreview,
+        ok: true,
+        user: email ?? "guest",
+        packTypeId,
+        items: samplePreview
       },
       200
     );
   } catch (err) {
     console.error("preview-pack error:", err);
-    return json({ error: "Internal server error" }, 500);
+    return json({ ok: false, error: "Internal server error" }, 500);
   }
 }

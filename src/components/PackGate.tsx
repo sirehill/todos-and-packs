@@ -5,6 +5,14 @@ import { getEnergy, canOpenPack, consumeForPack } from '@/lib/energy';
 
 const HomePackOpener = dynamic(() => import('@/app/home-pack-opener'), { ssr: false });
 
+type Opt = { id: string; name: string; packTypeId: string };
+
+// Provide at least one default option so the opener has something to select.
+// You can replace this later with real options from your data source.
+const DEFAULT_OPTIONS: Opt[] = [
+  { id: 'default-animals', name: 'Animals', packTypeId: 'animals' }
+];
+
 export default function PackGate() {
   const [openable, setOpenable] = useState(false);
   const [energy, setEnergy] = useState(0);
@@ -17,38 +25,43 @@ export default function PackGate() {
       setEnergy(e.value);
       setThreshold(e.threshold);
       setOpenable(canOpenPack());
-    }, 300);
+    }, 500);
     return () => clearInterval(id);
   }, []);
-
-  const onOpenPack = () => {
-    if (!canOpenPack()) return;
-    if (consumeForPack()) setShow(true);
-  };
 
   return (
     <>
       <div className="flex items-center gap-3">
         <button
-          onClick={onOpenPack}
+          className="px-3 py-1 rounded bg-blue-600 text-white disabled:opacity-60"
+          onClick={() => setShow(true)}
           disabled={!openable}
-          className={`rounded-md px-4 py-2 text-white ${openable ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
-          title={!openable ? `Earn ${Math.max(0, threshold - energy)} more energy to open a pack` : 'Open a pack'}
+          title={openable ? 'Open pack modal' : `Need ${Math.max(0, threshold - energy)} more energy`}
         >
-          Open Pack (uses energy)
+          Open a Pack
         </button>
-        <div className="text-sm text-slate-600">
-          Energy: {energy} / {threshold}
-        </div>
+        {!openable && (
+          <span className="text-xs text-zinc-600">
+            Need {Math.max(0, threshold - energy)} more energy
+          </span>
+        )}
       </div>
 
       {show && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-6" role="dialog" aria-modal="true">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-6"
+          role="dialog"
+          aria-modal="true"
+        >
           <div className="bg-white rounded-2xl p-4 w-full max-w-3xl relative">
-            <button className="absolute right-3 top-3 opacity-60 hover:opacity-100" onClick={() => setShow(false)}>
+            <button
+              className="absolute right-3 top-3 opacity-60 hover:opacity-100"
+              onClick={() => setShow(false)}
+            >
               ✕
             </button>
-            <HomePackOpener />
+            {/* Pass default options so HomePackOpener has valid props */}
+            <HomePackOpener options={DEFAULT_OPTIONS} />
           </div>
         </div>
       )}
