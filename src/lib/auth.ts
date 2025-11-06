@@ -3,8 +3,14 @@ import NextAuth, { type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
 
-// ---- Configure your auth here (adjust to your real logic) ----
+const credentialsSchema = z.object({
+  email: z.string().email(),
+  // Make password optional if you’re not verifying it yet
+  password: z.string().min(1).optional(),
+});
+
 const config = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
@@ -15,19 +21,23 @@ const config = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
-        if (!credentials?.email) return null;
-        // Minimal example: look up user by email. Add password checks if you need them.
+      async authorize(raw) {
+        // Validate & coerce credentials to typed strings
+        const parsed = credentialsSchema.safeParse(raw);
+        if (!parsed.success) return null;
+
+        const { email } = parsed.data;
+
+        // TODO: add proper password verification when ready
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email },
         });
         return user ?? null;
       },
     }),
   ],
-  // callbacks, pages, etc. can be added as needed
+  // Add callbacks/pages if you need them later
 } satisfies NextAuthConfig;
 
-// v5 API: we export handlers for the route, and helpers for server usage.
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
 export type { NextAuthConfig };
