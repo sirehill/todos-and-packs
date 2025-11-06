@@ -1,35 +1,33 @@
-import NextAuth, { NextAuthOptions, getServerSession } from "next-auth";
+// src/lib/auth.ts
+import NextAuth, { type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import prisma from "./prisma";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "@/lib/prisma";
 
-export const authOptions: NextAuthOptions = {
+// ---- Configure your auth here (adjust to your real logic) ----
+const config = {
+  adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   providers: [
     Credentials({
-      name: "Dev Email",
-      credentials: { email: { label: "Email", type: "email" } },
-      async authorize(creds) {
-        const email = (creds?.email || "").toString().toLowerCase().trim();
-        if (!email) return null;
-        let user = await prisma.user.findUnique({ where: { email } });
-        if (!user) user = await prisma.user.create({ data: { email } });
-        return { id: user.id, email: user.email, name: user.name ?? user.email };
-      }
-    })
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email) return null;
+        // Minimal example: look up user by email. Add password checks if you need them.
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
+        return user ?? null;
+      },
+    }),
   ],
-  pages: { signIn: "/login" },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) token.sub = (user as any).id;
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user && token?.sub) (session.user as any).id = token.sub;
-      return session;
-    }
-  }
-};
+  // callbacks, pages, etc. can be added as needed
+} satisfies NextAuthConfig;
 
-export function auth() { return getServerSession(authOptions); }
-const handler = NextAuth(authOptions);
-export default handler;
+// v5 API: we export handlers for the route, and helpers for server usage.
+export const { handlers, auth, signIn, signOut } = NextAuth(config);
+export type { NextAuthConfig };
