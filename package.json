@@ -1,0 +1,30 @@
+{
+  "name": "packs-and-lists-wip",
+  "version": "0.11.0",
+  "private": true,
+  "scripts": {
+    "setup": "npm install && npm run prisma:gen && npm run prisma:migrate && npm run db:seed && npm run dev",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "prisma:gen": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "db:seed": "ts-node prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.19.1",
+    "autoprefixer": "^10.4.20",
+    "next": "14.2.13",
+    "next-auth": "^4.24.11",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zod": "^3.23.8",
+    "tailwindcss": "^3.4.14",
+    "postcss": "^8.4.47"
+  },
+  "devDependencies": {
+    "prisma": "^5.19.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

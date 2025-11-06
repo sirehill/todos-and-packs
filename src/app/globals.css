@@ -1,0 +1,577 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.card {
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+.card.flipped {
+  transform: rotateY(180deg);
+}
+.card-face {
+  backface-visibility: hidden;
+}
+.card-back {
+  transform: rotateY(180deg);
+}
+
+
+/* --- v0.11.1 Flip Animation Fix --- */
+.card {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+}
+.card.flipped {
+  transform: rotateY(180deg);
+}
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+.card-back {
+  transform: rotateY(180deg);
+}
+
+
+/* --- v0.11.2 Robust Flip (per-face transforms) --- */
+.card-3d {
+  perspective: 1000px;
+}
+.card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+.face {
+  position: absolute;
+  inset: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition: transform 0.6s ease;
+}
+.back { /* initial visible side */
+  transform: rotateY(0deg);
+  z-index: 2;
+}
+.front { /* hidden initially */
+  transform: rotateY(180deg);
+  z-index: 3;
+}
+.card.flipped .back {
+  transform: rotateY(180deg);
+}
+.card.flipped .front {
+  transform: rotateY(0deg);
+}
+
+
+/* --- v0.11.3 Robust simple flip + reveal --- */
+.card-3d { perspective: 1000px; }
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+}
+.card-inner.is-flipped { transform: rotateY(180deg); }
+.card-face {
+  position: absolute;
+  inset: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.card-face.front { transform: rotateY(180deg); }
+
+
+/* --- v0.11.4 Playing-card flip (prefixed, opacity fallback) --- */
+.pl-3d { perspective: 1000px; }
+.pl-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+}
+.pl-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease, transform 0.6s ease;
+}
+/* Initial states */
+.pl-back {
+  background: #3730a3; /* indigo-700 */
+  color: white;
+  opacity: 1;
+  transform: rotateY(0deg);
+  z-index: 2;
+}
+.pl-front {
+  background: white;
+  color: #0f172a;
+  opacity: 0;              /* hidden until flipped */
+  transform: rotateY(180deg);
+  z-index: 3;
+}
+/* Flipped states */
+.pl-inner.pl-flipped {
+  transform: rotateY(180deg);
+}
+.pl-inner.pl-flipped .pl-back {
+  opacity: 0;              /* ensure back hides even if backface is ignored */
+  transform: rotateY(180deg);
+}
+.pl-inner.pl-flipped .pl-front {
+  opacity: 1;              /* front becomes visible */
+  transform: rotateY(0deg);
+}
+
+
+/* --- v0.11.5: Non-mirrored flip (per-face tween, no parent 180deg) --- */
+.pl-3d { perspective: 1000px; }
+.pl-inner { position: relative; width:100%; height:100%; }
+.pl-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.45s ease, opacity 0.3s ease;
+  will-change: transform, opacity;
+}
+/* initial */
+.pl-back {
+  background: #3730a3; /* indigo-700 */
+  color: white;
+  opacity: 1;
+  transform: rotateY(0deg);
+  z-index: 2;
+}
+.pl-front {
+  background: white;
+  color: #0f172a;
+  opacity: 0;
+  transform: rotateY(-90deg); /* start turned away */
+  z-index: 3;
+}
+/* flipped */
+.pl-inner.pl-flipped .pl-back {
+  opacity: 0;
+  transform: rotateY(90deg);
+}
+.pl-inner.pl-flipped .pl-front {
+  opacity: 1;
+  transform: rotateY(0deg);
+}
+
+
+/* --- v0.11.6: Zero-rotation reveal (no mirror possible) --- */
+.pl2-card { position: relative; width: 100%; height: 100%; }
+.pl2-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+}
+.pl2-back {
+  background: #3730a3; /* indigo-700 */
+  color: white;
+  opacity: 1;
+  transform: scale(1);
+  z-index: 2;
+}
+.pl2-front {
+  background: white;
+  color: #0f172a;
+  opacity: 0;
+  transform: scale(0.98);
+  z-index: 3;
+}
+.pl2-card.pl2-flipped .pl2-back {
+  opacity: 0;
+  transform: scale(0.98);
+  filter: blur(0.2px);
+}
+.pl2-card.pl2-flipped .pl2-front {
+  opacity: 1;
+  transform: scale(1);
+  filter: none;
+}
+
+
+/* --- v0.21 Rarity animations + confetti --- */
+
+/* Rarity border + glow */
+.pl-card {
+  position: relative;
+  width: 100%;                 /* fill grid cell width */
+  aspect-ratio: 63 / 88;       /* keep card ratio */
+  border-radius: 16px;
+  overflow: hidden;
+  perspective: 1000px;
+  border: 2px solid rgba(15,23,42,.10);
+  background: transparent;
+}
+.pl-common {
+  border-color: #9ca3af; /* gray-400 */
+}
+@keyframes plRareGlow {
+  0% { box-shadow: 0 0 0px rgba(59,130,246,0.3); }  /* blue-500 */
+  100% { box-shadow: 0 0 16px rgba(59,130,246,0.8); }
+}
+.pl-rare {
+  border-color: #3b82f6;
+  animation: plRareGlow 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes plEpicShimmer {
+  0% { box-shadow: 0 0 0px rgba(147,51,234,0.30), inset 0 0 0 rgba(147,51,234,0.15); }
+  50% { box-shadow: 0 0 18px rgba(147,51,234,0.75), inset 0 0 8px rgba(147,51,234,0.30); }
+  100% { box-shadow: 0 0 0px rgba(147,51,234,0.30), inset 0 0 0 rgba(147,51,234,0.15); }
+}
+.pl-epic {
+  border-color: #9333ea; /* purple-600 */
+  animation: plEpicShimmer 2s ease-in-out infinite;
+}
+
+@keyframes plGoldPulse {
+  0% { box-shadow: 0 0 0px rgba(234,179,8,0.25), 0 0 0px rgba(251,191,36,0.20); }
+  50% { box-shadow: 0 0 22px rgba(234,179,8,0.85), 0 0 10px rgba(251,191,36,0.60); }
+  100% { box-shadow: 0 0 0px rgba(234,179,8,0.25), 0 0 0px rgba(251,191,36,0.20); }
+}
+.pl-legendary {
+  border-color: #eab308; /* yellow-500 */
+  animation: plGoldPulse 1.4s ease-in-out infinite;
+}
+
+/* Confetti */
+.pl-confetti {
+  position: fixed;
+  pointer-events: none;
+  top: -10px;
+  width: 8px;
+  height: 8px;
+  opacity: 0.95;
+  will-change: transform, opacity;
+  border-radius: 2px;
+  z-index: 60;
+  animation: plConfettiFall 2400ms linear forwards, plConfettiSpin 1200ms ease-in-out infinite;
+}
+@keyframes plConfettiFall {
+  to { transform: translateY(110vh) rotate(360deg); opacity: 1; }
+}
+@keyframes plConfettiSpin {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(180deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+/* --- v0.21.1 Glow/Confetti visibility upgrades --- */
+.pl-card-wrap {
+  position: relative;
+  border-radius: 1rem; /* match rounded-2xl */
+  border: 2px solid transparent;
+}
+
+/* Stronger, forced colors and glow */
+.pl-common { border-color: #9ca3af !important; } /* gray-400 */
+
+@keyframes plRareGlowX {
+  0% { box-shadow: 0 0 0px rgba(59,130,246,0.25), 0 0 0px rgba(59,130,246,0.20) inset; }
+  100% { box-shadow: 0 0 22px rgba(59,130,246,0.85), 0 0 10px rgba(59,130,246,0.45) inset; }
+}
+.pl-rare { border-color: #3b82f6 !important; animation: plRareGlowX 1.4s ease-in-out infinite alternate; }
+
+@keyframes plEpicShimmerX {
+  0% { box-shadow: 0 0 0px rgba(147,51,234,0.25), 0 0 0px rgba(147,51,234,0.15) inset; }
+  50% { box-shadow: 0 0 26px rgba(147,51,234,0.85), 0 0 14px rgba(147,51,234,0.45) inset; }
+  100% { box-shadow: 0 0 0px rgba(147,51,234,0.25), 0 0 0px rgba(147,51,234,0.15) inset; }
+}
+.pl-epic { border-color: #9333ea !important; animation: plEpicShimmerX 1.8s ease-in-out infinite; }
+
+@keyframes plGoldPulseX {
+  0% { box-shadow: 0 0 0px rgba(234,179,8,0.25), 0 0 0px rgba(251,191,36,0.20) inset; }
+  50% { box-shadow: 0 0 34px rgba(234,179,8,0.95), 0 0 18px rgba(251,191,36,0.65) inset; }
+  100% { box-shadow: 0 0 0px rgba(234,179,8,0.25), 0 0 0px rgba(251,191,36,0.20) inset; }
+}
+.pl-legendary { border-color: #eab308 !important; animation: plGoldPulseX 1.2s ease-in-out infinite; }
+
+/* Confetti: bigger, higher z-index */
+.pl-confetti {
+  z-index: 9999;
+  width: 10px;
+  height: 10px;
+  opacity: 0.95;
+  top: -20px;
+  border-radius: 2px;
+  position: fixed;
+  pointer-events: none;
+  animation: plConfettiFall 2600ms linear forwards, plConfettiSpin 1000ms ease-in-out infinite;
+}
+@keyframes plConfettiFall { to { transform: translateY(120vh) rotate(360deg); opacity: 1; } }
+@keyframes plConfettiSpin { 0%{transform: rotate(0);} 50%{transform: rotate(180deg);} 100%{transform: rotate(360deg);} }
+
+
+/* --- v0.23: UNCOMMON border & gentle glow --- */
+@keyframes plUncommonGlow {
+  0% { box-shadow: 0 0 0px rgba(34,197,94,0.25), 0 0 0px rgba(34,197,94,0.15) inset; } /* green-500 */
+  100% { box-shadow: 0 0 14px rgba(34,197,94,0.65), 0 0 6px rgba(34,197,94,0.35) inset; }
+}
+.pl-uncommon { border-color: #22c55e !important; animation: plUncommonGlow 1.6s ease-in-out infinite alternate; }
+
+
+/* --- v0.24: enforce UNCOMMON style + ensure visibility --- */
+.pl-uncommon { border-color: #22c55e !important; animation: plUncommonGlow 1.6s ease-in-out infinite alternate; }
+@keyframes plUncommonGlow {
+  0% { box-shadow: 0 0 0px rgba(34,197,94,0.25), 0 0 0px rgba(34,197,94,0.15) inset; }
+  100% { box-shadow: 0 0 16px rgba(34,197,94,0.70), 0 0 8px rgba(34,197,94,0.40) inset; }
+}
+
+
+/* --- v0.25: Wrapper-only border + robust UNCOMMON + visible effects --- */
+.pl-card-wrap {
+  position: relative;
+  border-radius: 1rem; /* match rounded-2xl */
+  border: 3px solid transparent;
+  box-shadow: none; /* reset */
+}
+.pl-common { border-color: #9ca3af !important; } /* gray-400 */
+
+/* UNCOMMON - green */
+@keyframes plUncommonGlowV2 {
+  0% { box-shadow: 0 0 0px rgba(34,197,94,0.25), 0 0 0px rgba(34,197,94,0.15) inset; }
+  100% { box-shadow: 0 0 18px rgba(34,197,94,0.80), 0 0 8px rgba(34,197,94,0.45) inset; }
+}
+.pl-uncommon { border-color: #22c55e !important; animation: plUncommonGlowV2 1.4s ease-in-out infinite alternate; }
+
+/* Rare/Epic/Legendary (same as 21.1, slightly stronger) */
+@keyframes plRareGlowV2 {
+  0% { box-shadow: 0 0 0px rgba(59,130,246,0.25), 0 0 0px rgba(59,130,246,0.20) inset; }
+  100% { box-shadow: 0 0 26px rgba(59,130,246,0.95), 0 0 12px rgba(59,130,246,0.55) inset; }
+}
+.pl-rare { border-color: #3b82f6 !important; animation: plRareGlowV2 1.4s ease-in-out infinite alternate; }
+
+@keyframes plEpicShimmerV2 {
+  0% { box-shadow: 0 0 0px rgba(147,51,234,0.30), 0 0 0px rgba(147,51,234,0.18) inset; }
+  50% { box-shadow: 0 0 32px rgba(147,51,234,0.95), 0 0 16px rgba(147,51,234,0.55) inset; }
+  100% { box-shadow: 0 0 0px rgba(147,51,234,0.30), 0 0 0px rgba(147,51,234,0.18) inset; }
+}
+.pl-epic { border-color: #9333ea !important; animation: plEpicShimmerV2 1.8s ease-in-out infinite; }
+
+@keyframes plGoldPulseV2 {
+  0% { box-shadow: 0 0 0px rgba(234,179,8,0.30), 0 0 0px rgba(251,191,36,0.25) inset; }
+  50% { box-shadow: 0 0 40px rgba(234,179,8,1.0), 0 0 22px rgba(251,191,36,0.75) inset; }
+  100% { box-shadow: 0 0 0px rgba(234,179,8,0.30), 0 0 0px rgba(251,191,36,0.25) inset; }
+}
+.pl-legendary { border-color: #eab308 !important; animation: plGoldPulseV2 1.2s ease-in-out infinite; }
+
+
+/* ===== v0.6.14 Playing Card Look (v0.26.2 style) ===== */
+.pl-card {
+  position: relative;
+  width: 100%;                 /* fill grid cell width */
+  aspect-ratio: 63 / 88;       /* keep card ratio */
+  border-radius: 16px;
+  overflow: hidden;
+  perspective: 1000px;
+  border: 2px solid rgba(15,23,42,.10);
+  background: transparent;
+}
+
+.pl-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.pl-front {
+  background: radial-gradient(1000px 300px at 50% -10%, rgba(255,255,255,0.7) 0%, rgba(241,245,249,0.9) 35%, rgba(226,232,240,1) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 42px;
+  text-align: center;
+  color: #0f172a;
+}
+
+.pl-title {
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: .02em;
+  margin-bottom: 6px;
+}
+
+.pl-rarity {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  opacity: .9;
+  text-transform: uppercase;
+}
+
+/* Single-run flip entry used for previews */
+@keyframes plFlipInOnce {
+  0%   { transform: rotateY(90deg) scale(0.96); opacity: 0; }
+  100% { transform: rotateY(0deg)  scale(1.00); opacity: 1; }
+}
+.pl-flip-in { animation: plFlipInOnce 420ms ease-out both; }
+
+/* ===== Rarity Borders & Glows ===== */
+.pl-common {
+  border-color: #94a3b8; /* slate-400 */
+  box-shadow: 0 2px 10px rgba(2,6,23,0.12), inset 0 0 0 rgba(0,0,0,0);
+}
+.pl-uncommon {
+  border-color: #22c55e; /* green-500 */
+  box-shadow:
+    0 0 14px rgba(34,197,94,0.55),
+    inset 0 0 6px rgba(34,197,94,0.30);
+}
+@keyframes plRareGlow {
+  0%,100% { box-shadow: 0 0 12px rgba(59,130,246,.55), inset 0 0 6px rgba(59,130,246,.28); }
+  50%     { box-shadow: 0 0 22px rgba(59,130,246,.85), inset 0 0 12px rgba(59,130,246,.45); }
+}
+.pl-rare {
+  border-color: #3b82f6; /* blue-500 */
+  animation: plRareGlow 1.8s ease-in-out infinite;
+}
+@keyframes plEpicShimmer {
+  0%,100% { box-shadow: 0 0 14px rgba(147,51,234,.55), inset 0 0 8px rgba(168,85,247,.35); }
+  50%     { box-shadow: 0 0 28px rgba(147,51,234,.9), inset 0 0 16px rgba(168,85,247,.6); }
+}
+.pl-epic {
+  border-color: #9333ea; /* purple-600 */
+  animation: plEpicShimmer 1.9s ease-in-out infinite;
+}
+@keyframes plGoldPulse {
+  0%,100% { box-shadow: 0 0 14px rgba(245,158,11,.55), inset 0 0 8px rgba(251,191,36,.35); }
+  50%     { box-shadow: 0 0 32px rgba(245,158,11,1), inset 0 0 18px rgba(251,191,36,.75); }
+}
+.pl-legendary {
+  border-color: #f59e0b; /* amber-500 */
+  animation: plGoldPulse 1.6s ease-in-out infinite;
+}
+
+/* Rarity text helper colors (for front label) */
+.text-amber-600 { color: #d97706; }
+.text-purple-600 { color: #9333ea; }
+.text-blue-600 { color: #2563eb; }
+.text-green-600 { color: #16a34a; }
+.text-slate-600 { color: #475569; }
+
+
+
+.pl2-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 600ms ease;
+  will-change: transform;
+}
+
+
+
+.pl2-card[data-flipped="true"] .pl2-inner {
+  transform: rotateY(180deg);
+}
+
+
+
+/* rarity-based glow (legacy compatible) */
+.pl2-card.common { box-shadow: 0 0 16px rgba(148,163,184,.35); }
+.pl2-card.rare   { box-shadow: 0 0 18px rgba(59,130,246,.45); }
+.pl2-card.epic   { box-shadow: 0 0 20px rgba(168,85,247,.50); }
+.pl2-card.legendary { box-shadow: 0 0 24px rgba(234,179,8,.55); }
+
+
+
+.pl2-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 20px;
+  justify-items: center;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .pl2-grid { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+}
+
+
+
+.pl-front.pl-show { transform: rotateY(0deg); 
+  opacity: 1;
+}
+.pl-back.pl-hidden { transform: rotateY(180deg); 
+  opacity: 0;
+}
+
+
+
+/* Home opener grid: ensure no visual overlap between card glows */
+.pl-home-grid {
+  display: grid;
+  /* Always 4 columns; cards scale with viewport */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* Fluid spacing that grows with viewport */
+  --pl-gap: clamp(12px, 1.8vw, 28px);
+  gap: var(--pl-gap);
+  justify-items: stretch;
+  align-items: start;
+  padding: 4px;
+}
+
+@media (max-width: 1024px) {
+  .pl-home-grid {
+  display: grid;
+  /* Always 4 columns; cards scale with viewport */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* Fluid spacing that grows with viewport */
+  --pl-gap: clamp(12px, 1.8vw, 28px);
+  gap: var(--pl-gap);
+  justify-items: stretch;
+  align-items: start;
+  padding: 4px;
+}
+}
+
+@media (max-width: 560px) {
+  .pl-home-grid {
+  display: grid;
+  /* Always 4 columns; cards scale with viewport */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* Fluid spacing that grows with viewport */
+  --pl-gap: clamp(12px, 1.8vw, 28px);
+  gap: var(--pl-gap);
+  justify-items: stretch;
+  align-items: start;
+  padding: 4px;
+}
+}
+
+/* Subtle glow tuning to reduce visual touching */
+.pl-legendary { box-shadow: 0 0 18px rgba(234,179,8,.50); }
+.pl-epic { box-shadow: 0 0 16px rgba(168,85,247,.45); }
+.pl-rare { box-shadow: 0 0 14px rgba(59,130,246,.42); }
+.pl-common { box-shadow: 0 0 12px rgba(148,163,184,.32); }
+
+@media (max-width: 700px) {
+  .pl-legendary { box-shadow: 0 0 14px rgba(234,179,8,.45); }
+  .pl-epic { box-shadow: 0 0 12px rgba(168,85,247,.40); }
+  .pl-rare { box-shadow: 0 0 10px rgba(59,130,246,.38); }
+  .pl-common { box-shadow: 0 0 8px rgba(148,163,184,.30); }
+}
