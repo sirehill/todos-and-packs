@@ -43,12 +43,13 @@ export default async function Page() {
 
       <section className="mb-8">
         {/* Duplicates / dusting */}
-        <HomeDuplicatesSection userEmail={userEmail} />
+        {/* Note: Do not pass userEmail unless the component explicitly accepts it */}
+        <HomeDuplicatesSection />
       </section>
 
       <section>
         {/* Collection grid */}
-        <CollectionGrid userEmail={userEmail} />
+        <CollectionGrid />
       </section>
     </main>
   );
