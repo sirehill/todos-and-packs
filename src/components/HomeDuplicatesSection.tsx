@@ -13,24 +13,49 @@ export default async function HomeDuplicatesSection() {
   } catch {}
   if (!email) email = getDevEmail();
 
-  // Try to find user; if none yet, render section with 0 duplicates
-  const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
-  if (!user) {
+  // Default UI if DB is unavailable
+  let duplicates = 0;
+  try {
+    // Find user id
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return (
+        <section className="my-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-2">
+          <h2 className="text-2xl font-semibold">Duplicates</h2>
+          <p className="text-sm opacity-70">
+            You currently have <span className="font-semibold">0</span> duplicates in your collection.
+          </p>
+          <div className="pt-2"><RemoveDuplicatesButton disabled={false} /></div>
+        </section>
+      );
+    }
+
+    // Count duplicates (qty > 1 contributes qty-1)
+    const userItems = await prisma.userItem.findMany({
+      where: { userId: user.id, qty: { gt: 1 } },
+      select: { qty: true },
+    });
+    duplicates = userItems.reduce((sum, ui) => sum + Math.max(0, ui.qty - 1), 0);
+  } catch (e) {
+    // DB is unavailable on this deployment (e.g., SQLite on Vercel).
+    // Show a graceful UI and keep the homepage alive.
     return (
       <section className="my-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-2">
         <h2 className="text-2xl font-semibold">Duplicates</h2>
-        <p className="text-sm opacity-70">You currently have <span className="font-semibold">0</span> duplicates in your collection.</p>
-        <div className="pt-2"><RemoveDuplicatesButton disabled={false} /></div>
-    </section>
+        <p className="text-sm opacity-70">
+          <span className="font-semibold">Database not connected</span>. Showing default counts.
+        </p>
+        <p className="text-sm opacity-70">
+          You currently have <span className="font-semibold">0</span> duplicates in your collection.
+        </p>
+        <div className="pt-2"><RemoveDuplicatesButton disabled={true} /></div>
+      </section>
     );
   }
-
-  // Count duplicates (qty > 1 contributes qty-1)
-  const userItems = await prisma.userItem.findMany({
-    where: { userId: user.id, qty: { gt: 1 } },
-    select: { qty: true }
-  });
-  const duplicates = userItems.reduce((sum, ui) => sum + Math.max(0, ui.qty - 1), 0);
 
   return (
     <section className="my-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-2">
